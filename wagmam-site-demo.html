@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>WAGMAM Demo</title>
+
+	<!-- load in web3 from CDN -->
+	<script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+	<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+
+<style>
+
+/* Credit: https://codepen.io/keithclark/pen/DQdKbg */
+
+#space, .stars {
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.stars {
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  animation: zoom 5s infinite;
+  opacity: 0;
+}
+
+.stars:nth-child(1) {
+  background-position: 50% 50%;
+  animation-delay: 0s;
+}
+.stars:nth-child(2) {
+  background-position: 20% 60%;
+  animation-delay: 1s;
+}
+.stars:nth-child(3) {
+  background-position: -20% -30%;
+  animation-delay: 2s;
+}
+.stars:nth-child(4) {
+  background-position: 40% -80%;
+  animation-delay: 3s;
+}
+.stars:nth-child(5) {
+  background-position: -20% 30%;
+  animation-delay: 4s;
+}
+
+@keyframes zoom {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+    animation-timing-function: ease-in;
+  } 
+  85% {
+    opacity: 1;
+    transform: scale(2.8);
+    animation-timing-function: linear;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(3.5);
+  }
+}
+
+
+
+	.sc-bczRLJ {
+		text-align: center;
+	}
+
+	.emXkjK {
+		padding: 20px;
+	}
+
+	.gInCbV {
+		max-width: 20%;
+	}
+
+	.mc {
+		float: left;
+		width: 62%;
+		max-width: 1024px; 
+		font-size: 16px; 
+		margin-left: 2%; 
+		margin-right: 2%;
+	}
+
+	.mc {
+		color: white;
+	}
+
+	body, html {
+		height: 100%;
+	}
+
+	body {
+		background: #000;
+	}
+
+	.left-side {
+		float: left;
+		width: 15%;
+		height: 100%;
+	}
+
+	.right-side {
+		float: right;
+		width: 15%;
+		height: 100%;
+	}
+
+	.left-side img, .right-side img {
+		width: 100%;
+	}
+
+	.top {
+	  position: absolute;
+	  z-index: 1;
+/*	  top: 50%;
+	  left: 50%;*/
+	}
+
+
+
+
+</style>
+
+</head>
+<body>
+	<div class="top">
+	
+		<div id="imgColumnOne" class='left-side'></div>
+
+		<!-- content center -->
+		<div class="sc-bczRLJ emXkjK mc">
+			<img src="https://ipfs.io/ipfs/QmTbEoh4k6tfB7B6LNnfmD7ixJVgkiGjErmu8LiTmmvVCW?filename=wagmamLogo.1a0a93bc.png" alt="wagmam-logo" class="sc-jSMfEi gInCbV">
+			<h2>The WAGMAM Collection</h2>
+			<p>The Infinite Machine Collection team wants to reward its holders with an airdrop of works created by our 34 artists.<br>As WAGMAM, we have decided that this new derivative collection will have “cinema”, or “the cinematic”, as a common theme. Cinema is the artistic manifestation that in itself brings together visual arts, literature, and technology. In turn, films can be used as a powerful tool for communication, dissemination, and freedom. </p>
+			<p>It is precisely on this basis of diverse expressions and functions that the community of Ethereans has been created. Therefore, the artists have created pieces that reference cinema or cinematography. These references are achieved either from the use of iconographic motifs and symbols of cinema, or with the use of film language resources in the composition of the image.</p>
+
+			<p><select name="drop" id="drop" class="sc-dkzDqf iFwiWG">
+				<option value="drop1">Drop #1</option>
+				<option value="drop2">Drop #2</option>
+				<option value="drop3">Drop #3</option>
+			</select>
+
+			<button class="sc-gsnTZi hKFBDN">Minted!</button></p>
+		</div>
+
+		<div id="imgContainer" class="right-side"></div>
+
+	</div>
+
+	<div id="space">
+		<div class="stars"></div>
+		<div class="stars"></div>
+		<div class="stars"></div>
+		<div class="stars"></div>
+		<div class="stars"></div>
+	</div>
+
+</body>
+
+<script>
+
+	
+	var web3 = new Web3(Web3.givenProvider || 'wss://eth-mainnet.alchemyapi.io/v2/szbJviwD1JXcAcbDNY0Mk7qn6uql-sN9');
+
+	if (window.web3) {
+        // window.web3 = new Web3(web3.currentProvider);
+
+        try {
+			web3.eth.getBlockNumber(function (error, result) {
+				console.log(result);
+				//good here!
+			});
+		} catch (error) {
+            // User denied account access...
+        }
+    }
+
+    let currentABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":false,"internalType":"bool","name":"approved","type":"bool"}],"name":"ApprovalForAll","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256[]","name":"ids","type":"uint256[]"},{"indexed":false,"internalType":"uint256[]","name":"values","type":"uint256[]"}],"name":"TransferBatch","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"id","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"TransferSingle","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"value","type":"string"},{"indexed":true,"internalType":"uint256","name":"id","type":"uint256"}],"name":"URI","type":"event"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"uint256","name":"id","type":"uint256"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address[]","name":"accounts","type":"address[]"},{"internalType":"uint256[]","name":"ids","type":"uint256[]"}],"name":"balanceOfBatch","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"contractURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"dropMerkleRoot","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"pDrop","type":"uint256"}],"name":"getMerkleRoot","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"pDrop","type":"uint256"},{"internalType":"uint256","name":"pTokenId","type":"uint256"},{"internalType":"address","name":"pRecipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"bytes32[]","name":"pProof","type":"bytes32[]"}],"name":"mint","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"mintedAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256[]","name":"ids","type":"uint256[]"},{"internalType":"uint256[]","name":"amounts","type":"uint256[]"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeBatchTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"pContractUri","type":"string"}],"name":"setContractURI","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"uint256","name":"maxSupply","type":"uint256"}],"name":"setMaxTokenSupply","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"pDrop","type":"uint256"},{"internalType":"bytes32","name":"pRoot","type":"bytes32"}],"name":"setMerkleRoot","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"uint256","name":"maxSupply","type":"uint256"},{"internalType":"string","name":"tokenUri","type":"string"}],"name":"setTokenInfo","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"string","name":"tokenUri","type":"string"}],"name":"setTokenUri","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"tokenInfo","outputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"uint256","name":"mintedAmount","type":"uint256"},{"internalType":"uint256","name":"maxSupply","type":"uint256"},{"internalType":"string","name":"uri","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"uri","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"}];
+
+    let currentContract = "0x11B197e078e41aF41Bc1d9e03407090e61e40BAA";
+    cpW3contract = new web3.eth.Contract(currentABI, currentContract);
+
+    let rhs = document.getElementById('imgContainer');
+    let lhs = document.getElementById('imgColumnOne');
+
+    let maxNum = 9;			// what is the maximum number of the mint id available
+    let loopNum = 3;		// how many images to display
+
+    for (var j = loopNum; j >= 0; j--) {
+
+	    for (var i = maxNum; i >= 1; i--) {
+
+	    	// let rand = Math.floor((Math.random() * maxNum) + 1);
+
+		    cpW3contract.methods.uri(i).call().then(async function(result){
+
+				let thisURI = result;
+				// console.log(result);
+				let urlTarget = "https://cryptopoker.mypinata.cloud/ipfs/" + result.slice(7);
+				let adjust = result.slice(7,66);
+				let jsonResult = await httpGet(urlTarget);
+				// console.log(jsonResult);
+				let parseRes = JSON.parse(jsonResult);
+
+				let soloHash = parseRes.image.slice(7,66);			
+					// clips out just the IPFS cid for the image of the NFT
+				let thisFilename = parseRes.image.slice(67)	;		
+					// clips out just the filename for use when calling the image
+
+				let thisImageUrl = "https://cryptopoker.mypinata.cloud/ipfs/" + soloHash+"/"+thisFilename;
+				let thisImagelink = "<a class='nft-link' href='"+thisImageUrl+"' target='_blank'>";
+				let thisImage = "<img src='"+thisImageUrl+"' alt="+thisFilename+" style='width: 100%;'/>";
+
+				var newOutput = thisImagelink + thisImage + "</a>";
+
+				// console.log(newOutput);
+
+				let toss = Math.random();
+				// console.log(toss);
+				if(toss >= 0.5){
+					imgContainer.innerHTML += newOutput;
+
+				} else {
+					imgColumnOne.innerHTML += newOutput;
+
+				}
+
+
+
+			});
+		}
+
+	}
+
+    //utility
+	async function httpGet(theUrl) {
+
+		let xmlHttpReq = new XMLHttpRequest();
+		xmlHttpReq.open("GET", theUrl, false); 
+		xmlHttpReq.send(null);
+		return xmlHttpReq.responseText;	
+	}
+
+
+	async function connectMetaMask() {
+		// Modern dapp browsers...
+	    if (window.ethereum) {
+	        window.web3 = new Web3(ethereum);
+
+	        try {
+	            // Request account access if needed
+	            console.log("Successful Attempt to Connect via MetaMask");
+
+	            // await ethereum.enable();
+	            // await window.ethereum.request({method: 'eth_requestAccounts'});
+	            // await window.ethereum.sendAsync('eth_requestAccounts');
+	            // Acccounts now exposed
+	            // web3.eth.sendTransaction({/* ... */});
+	            // window.web3 = new Web3(window.ethereum);
+
+	            // testing can we get the latest eth blocknumber?
+	       		web3.eth.getBlockNumber(function (error, result) {
+					console.log(result);
+					//good here!
+				});
+
+	            attachContracts();
+	            console.log("Should attach contracts be called here as well? why not");
+
+	            // we get connected account public address using web3 API call
+	            let connectedAccounts = web3.eth.getAccounts();
+	            connectedAccounts.then(function(result) {
+	            	let accountNum = result[0];
+	            	// we got it, so we can use the connected account number when generating the user account in main database storage
+	            	console.log(accountNum);	// should be the result of the promise here
+
+	            	createUserAccount(accountNum);		
+	            	currentUserAddress = accountNum;	// set global var for easy access
+	            	isDemo = false;						// disable Demo mode.
+
+	            	whenConnected();					// run connection subroutine
+
+	            });
+
+
+	        } catch (error) {
+	            // User denied account access...
+	        }
+	    }
+	    // Legacy dapp browsers...
+	    else if (window.web3) {
+	        window.web3 = new Web3(web3.currentProvider);
+	        // Acccounts always exposed
+	        web3.eth.sendTransaction({/* ... */});
+
+	        // test tx
+	        web3.eth.getBlockNumber(function (error, result) {
+									console.log(result)
+								});
+
+	        console.log("Account connected via MetaMask Classic");
+	    }
+	    // Non-dapp browsers...
+	    else {
+	        console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+
+	        alert("Browser Window is a no-go. Please use MetaMask Browser or Desktop with Extension.");
+
+	        alert("Application will continue in demo mode only on this browser and nothing will be saved.");
+
+	        // whenConnected();
+	    }
+	}
+</script>
+</html>
